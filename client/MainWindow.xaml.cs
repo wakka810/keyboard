@@ -439,69 +439,24 @@ namespace KeymapperGui
 
             try
             {
-                StatusTextBlock.Text = $"Executing: {commandText}";
-
                 var psi = new ProcessStartInfo
                 {
-
                     FileName = "cmd.exe",
-
                     Arguments = $"/c \"{commandText}\"",
-
-                    UseShellExecute = false,
-
-                    CreateNoWindow = true,
-
-                    RedirectStandardError = true
                 };
 
-                using (var process = new Process { StartInfo = psi })
-                {
-                    string errorOutput = null;
-                    process.ErrorDataReceived += (sender, e) =>
-                    {
-                        if (!string.IsNullOrEmpty(e.Data))
-                        {
-                            errorOutput += e.Data + Environment.NewLine;
-                        }
-                    };
+                Process.Start(psi);
 
-                    process.Start();
-
-                    process.BeginErrorReadLine();
-
-                    process.WaitForExit();
-
-                    if (process.ExitCode != 0 || !string.IsNullOrEmpty(errorOutput))
-                    {
-                        var errorMessage = $"Command failed with exit code {process.ExitCode}." +
-                                           $"\nCommand: {commandText}" +
-                                           $"\nError output:\n{errorOutput?.Trim()}";
-
-                        System.Windows.Application.Current.Dispatcher.Invoke(() =>
-                        {
-                            System.Windows.MessageBox.Show(
-                                errorMessage,
-                                "Command Execution Error",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Error);
-                        });
-                        StatusTextBlock.Text = "Error executing command.";
-                    }
-                    else
-                    {
-                        StatusTextBlock.Text = $"Successfully executed: {commandText}";
-                    }
-                }
+                StatusTextBlock.Text = $"Command launched: {commandText}";
             }
             catch (Exception ex)
             {
                 System.Windows.MessageBox.Show(
-                    $"Error starting process for '{commandText}':\n{ex.Message}",
+                    $"Failed to start process for '{commandText}':\n{ex.Message}",
                     "Process Start Error",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
-                StatusTextBlock.Text = "Error starting process.";
+                StatusTextBlock.Text = "Error launching command.";
             }
         }
 
